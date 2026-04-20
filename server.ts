@@ -6,14 +6,25 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, addDoc, doc, setDoc, getDoc, onSnapshot, query, where, limit, orderBy } from 'firebase/firestore';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
-import firebaseConfig from './firebase-applet-config.json' assert { type: 'json' };
+import { GoogleGenAI } from "@google/genai";
+import dotenv from 'dotenv';
+import fs from 'fs';
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Initialize Firebase for Backend Simulation
+// Initialize Firebase using the system-managed configuration
+const firebaseConfig = JSON.parse(fs.readFileSync(path.join(__dirname, 'firebase-applet-config.json'), 'utf8'));
+
 const appFirebase = initializeApp(firebaseConfig);
 const db = getFirestore(appFirebase, firebaseConfig.firestoreDatabaseId);
+
+// AI Initialization (Backend Only)
+const genAI = process.env.GEMINI_API_KEY 
+  ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
+  : null;
 
 async function startServer() {
   const app = express();
@@ -47,6 +58,49 @@ async function startServer() {
   // API Routes
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
+
+  // AI Chat Endpoint
+  app.post('/api/ai/chat', async (req, res) => {
+    const { context, userMsg } = req.body;
+    
+    if (!genAI) {
+      return res.status(503).json({ error: 'AI Service Unavailable' });
+    }
+
+    try {
+      const response = await (genAI as any).models.generateContent({
+        model: "gemini-1.5-flash",
+        contents: [
+          { role: 'user', parts: [{ text: context }] },
+          { role: 'user', parts: [{ text: userMsg }] }
+        ],
+      });
+      res.json({ text: response.text });
+    } catch (err) {
+      console.error('AI Chat Error:', err);
+      res.status(500).json({ error: 'AI processing failed' });
+    }
+  });
+
+  // AI Simulate Endpoint
+  app.post('/api/ai/simulate', async (req, res) => {
+    const { prompt } = req.body;
+    
+    if (!genAI) {
+      return res.status(503).json({ error: 'AI Service Unavailable' });
+    }
+
+    try {
+      const response = await (genAI as any).models.generateContent({
+        model: "gemini-1.5-flash",
+        contents: prompt,
+      });
+      res.json({ text: response.text });
+    } catch (err) {
+      console.error('AI Simulation Error:', err);
+      res.status(500).json({ error: 'Simulation failed' });
+    }
   });
 
   // Stripe-ready Mock Listener

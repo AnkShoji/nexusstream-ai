@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from './lib/utils';
-import { GoogleGenAI } from "@google/genai";
 
 // --- Types ---
 type Language = 'en' | 'es';
@@ -350,7 +349,6 @@ const NeuralCommandCenter = ({ data, txns, lang, aiMode }: { data: Summary | nul
     setLoading(true);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
       const modeInstruction = t.aiModeInstruction[aiMode];
       const context = `${t.aiContext}
       
@@ -372,15 +370,16 @@ const NeuralCommandCenter = ({ data, txns, lang, aiMode }: { data: Summary | nul
       
       ${t.aiTone}`;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: [
-          { role: 'user', parts: [{ text: context }] },
-          { role: 'user', parts: [{ text: userMsg }] }
-        ],
+      const resp = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ context, userMsg })
       });
-
-      const responseText = response.text || (lang === 'es' ? "No se pudo procesar." : "Could not process.");
+      
+      if (!resp.ok) throw new Error('AI request failed');
+      
+      const resJson = await resp.json();
+      const responseText = resJson.text || (lang === 'es' ? "No se pudo procesar." : "Could not process.");
       setChat(prev => [...prev, { role: 'ai', content: responseText }]);
     } catch (err) {
       setChat(prev => [...prev, { role: 'ai', content: t.neuralError }]);
@@ -460,7 +459,6 @@ const ScenarioSimulator = ({ data, lang, aiMode }: { data: Summary | null, lang:
     if (!data) return;
     setLoading(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
       const refinedScenarioPrompt = actionPrompts[scenario] || scenario;
       const modeInstruction = t.aiModeInstruction[aiMode];
       const prompt = `${t.aiContext}
@@ -472,11 +470,16 @@ const ScenarioSimulator = ({ data, lang, aiMode }: { data: Summary | null, lang:
       ${t.aiTone}
       FORMAT: Provide a specific table with 3 clear business impact vectors.`;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: prompt,
+      const resp = await fetch('/api/ai/simulate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
       });
-      setProjection(response.text);
+
+      if (!resp.ok) throw new Error('Simulation failed');
+      
+      const resJson = await resp.json();
+      setProjection(resJson.text);
     } catch (e) {
       setProjection(lang === 'es' ? "Error de proyección." : "Projection error.");
     } finally {

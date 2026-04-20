@@ -1,5 +1,6 @@
 # 🚀 NexusStream.ai | AI-Autonomous Operations Intelligence
 
+![NexusStream Banner](https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=2070)
 
 NexusStream.ai is a **Real-Time Operations Intelligence Engine** designed for high-scale enterprise environments. It transforms raw ingestion streams into actionable business intelligence using autonomous neural guardians.
 
@@ -53,7 +54,8 @@ graph LR
     B --> C[Firestore Database]
     C --> D[Real-time Hook / onSnapshot]
     D --> E[React Dashboard]
-
+    E --> F[Google Gemini AI Analysis]
+    F --> E
 ```
 
 ---
@@ -72,9 +74,19 @@ npm install
 ```
 
 ### 3. Environment Variables
-Create a `.env` file in the root:
+Create a `.env` file in the root using the template from `.env.example`:
 ```env
-GEMINI_API_KEY=your_key_here
+# AI Intelligence
+GEMINI_API_KEY=your_gemini_api_key
+
+# Firebase Core (Client-side exposed keys must be prefixed with VITE_)
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+VITE_FIREBASE_DATABASE_ID=your_database_id (default is (default))
 ```
 
 ### 4. Run the engine
@@ -95,10 +107,9 @@ npm run dev
 
 ## 👤 Author
 
-**Brayan Rodriguez**
-- GitHub: https://github.com/AnkShoji
-- LinkedIn: www.linkedin.com/in/brayan-rodriguez-dev
-
+**Ankbrous** - *Senior Software Engineer*
+- GitHub: [ankbrous](https://github.com/ankbrous)
+- LinkedIn: [Your Profile](https://linkedin.com/in/yourprofile)
 
 ---
 
