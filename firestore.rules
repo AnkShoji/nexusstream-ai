@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Reuseable helpers
+    function isSignedIn() { return request.auth != null; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // Validation for Transaction
+    function isValidTransaction(data) {
+      return data.keys().hasAll(['productId', 'productName', 'price', 'quantity', 'total', 'category', 'timestamp'])
+        && data.productId is string && data.productId.size() <= 256
+        && data.productName is string && data.productName.size() <= 256
+        && data.price is number && data.price >= 0
+        && data.quantity is number && data.quantity >= 1
+        && data.total is number && data.total >= 0
+        && data.category in ['Electronics', 'Fashion', 'Home', 'Sports', 'Beauty']
+        && data.timestamp is string; // Simplified for demo, ideally ServerTimestamp
+    }
+
+    // Validation for Summary
+    function isValidSummary(data) {
+      return data.keys().hasAll(['totalRevenue', 'transactionCount', 'categoryRevenue', 'lastUpdated'])
+        && data.totalRevenue is number
+        && data.transactionCount is number
+        && data.categoryRevenue is map
+        && data.lastUpdated is string;
+    }
+
+    // Transactions: In this simulation, anyone can "send" a transaction (ingestion simulation)
+    // and we allow listing to power the live overview dashboard.
+    match /transactions/{transactionId} {
+      allow read: if true; 
+      allow create: if isValidId(transactionId) && isValidTransaction(incoming());
+      allow update, delete: if false; // Transactions are immutable once sent
+    }
+
+    // Summaries: Publicly readable for the dashboard, but writable only by simulation "logic"
+    // Since we don't have server-side admin SDK configured by default in a simple setup,
+    // we'll allow writes for now to demonstrate the real-time sync, 
+    // but in a real app, this would be restricted to isAdmin().
+    match /summaries/{summaryId} {
+      allow read: if true;
+      allow write: if isValidId(summaryId) && isValidSummary(incoming());
+    }
+  }
+}
