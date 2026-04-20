@@ -1,8 +1,19 @@
 # 🚀 NexusStream.ai | AI-Autonomous Operations Intelligence
 
-![NexusStream Banner](https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=2070)
 
 NexusStream.ai is a **Real-Time Operations Intelligence Engine** designed for high-scale enterprise environments. It transforms raw ingestion streams into actionable business intelligence using autonomous neural guardians.
+
+
+## 📸 Product Preview
+
+### 📊  Dashboard
+<img width="2525" height="1179" alt="Dashboard" src="https://github.com/user-attachments/assets/d3c9117b-1613-48c5-8c87-a171d025737f" />
+
+
+### 🚨 Anomaly Detection
+<img width="509" height="1193" alt="Anomaly" src="https://github.com/user-attachments/assets/e670babe-874c-42bc-8081-6e1613fd1774" />
+
+
 
 ---
 
@@ -107,9 +118,10 @@ npm run dev
 
 ## 👤 Author
 
-**Ankbrous** - *Senior Software Engineer*
-- GitHub: [ankbrous](https://github.com/ankbrous)
-- LinkedIn: [Your Profile](https://linkedin.com/in/yourprofile)
+*Brayan Rodriguez* 
+
+- GitHub: https://github.com/AnkShoji
+- LinkedIn: www.linkedin.com/in/brayan-rodriguez-dev
 
 ---
 
