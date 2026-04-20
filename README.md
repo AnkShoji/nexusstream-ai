@@ -65,8 +65,7 @@ graph LR
     B --> C[Firestore Database]
     C --> D[Real-time Hook / onSnapshot]
     D --> E[React Dashboard]
-    E --> F[Google Gemini AI Analysis]
-    F --> E
+
 ```
 
 ---
